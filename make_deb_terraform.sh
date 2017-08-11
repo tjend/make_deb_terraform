@@ -15,7 +15,7 @@ BASE="https://releases.hashicorp.com/terraform/${LATEST_VERSION}/terraform_${LAT
 URL_LINUX_AMD64="${BASE}_linux_amd64.zip"
 URL_SHA256SUMS="${BASE}_SHA256SUMS"
 URL_SIG="${BASE}_SHA256SUMS.sig"
-curl --silent "${URL_AMD64}" > latest_linux_amd64.zip
+curl --silent "${URL_LINUX_AMD64}" > latest_linux_amd64.zip
 curl --silent "${URL_SHA256SUMS}" > SHA256SUMS
 curl --silent "${URL_SIG}" > SHA256SUMS.sig
 echo
