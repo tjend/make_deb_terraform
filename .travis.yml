@@ -1,0 +1,7 @@
+language: bash
+
+before_script:
+  - gem install fpm
+
+script:
+  - ./make_deb_terraform.sh
