@@ -67,7 +67,7 @@ echo
 # - PACKAGECLOUD_TOKEN
 # - PACKAGECLOUD_USER
 echo 'pushing package to packagecloud'
-package_cloud push "${PACKAGECLOUD_USER}/${PACKAGECLOUD_REPO}" "terraform_${LATEST_VERSION}_amd64.deb"
+package_cloud push "${PACKAGECLOUD_USER}/${PACKAGECLOUD_REPO}/debian/jessie" "terraform_${LATEST_VERSION}_amd64.deb"
 if [ $? -ne 0 ]; then
   echo "failed to push the linux amd64 package to packagecloud!"
   exit 1;
