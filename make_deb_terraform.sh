@@ -50,7 +50,7 @@ fi
 echo
 
 echo 'building linux amd64 package'
-fpm --input-type zip --output-type deb --name terraform --version "${LATEST_VERSION}" --architecture amd64 latest_linux_amd64.zip
+fpm --input-type zip --output-type deb --prefix /usr/local/bin --name terraform --version "${LATEST_VERSION}" --architecture amd64 latest_linux_amd64.zip
 if [ $? -ne 0 ]; then
   echo "failed to build the linux amd64 package!"
   ls -l
