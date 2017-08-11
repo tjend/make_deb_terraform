@@ -10,7 +10,7 @@ LATEST_VERSION=$(curl --silent "${RELEASES_PAGE}" | grep "\/terraform\/[0-9]\+\.
 
 # TODO: check if package is up to date
 
-# download latest files
+echo 'downloading latest files'
 BASE="https://releases.hashicorp.com/terraform/${LATEST_VERSION}/terraform_${LATEST_VERSION}"
 URL_LINUX_AMD64="${BASE}_linux_amd64.zip"
 URL_SHA256SUMS="${BASE}_SHA256SUMS"
@@ -18,8 +18,9 @@ URL_SIG="${BASE}_SHA256SUMS.sig"
 curl --silent "${URL_AMD64}" > latest_linux_amd64.zip
 curl --silent "${URL_SHA256SUMS}" > SHA256SUMS
 curl --silent "${URL_SIG}" > SHA256SUMS.sig
+echo
 
-# import hashicorp gpg key
+echo 'importing hashicorp gpg key'
 KEYID="51852D87348FFC4C"
 URL_KEY="https://keybase.io/hashicorp/pgp_keys.asc"
 curl --silent "${URL_KEY}" | gpg --quiet --homedir ./.gnupg --import
@@ -27,21 +28,29 @@ if [ $? -ne 0 ]; then
   echo "Failed to import hashicorp gpg key!"
   exit 1;
 fi
+echo
 
-# verify downloaded signature
+echo 'verifying downloaded signature'
 gpg --homedir ./.gnupg --trusted-key "${KEYID}" --verify SHA256SUMS.sig SHA256SUMS
 if [ $? -ne 0 ]; then
   echo "Failed to verify downloaded signature!"
   exit 1;
 fi
+echo
 
-# verify downloaded SHA256SUMS file
+echo 'verifying downloaded linux amd64 file'
 SHA256SUM_WANTED=$(grep linux_amd64 SHA256SUMS | cut --delimiter=" " --fields="1")
 SHA256SUM=$(sha256sum latest_linux_amd64.zip | cut --delimiter=" " --fields="1")
 if [ "${SHA256SUM}" != "${SHA256SUM_WANTED}" ]; then
-  echo "sha256sum of latest linux amd64 zip file incorrect!"
+  echo "sha256sum of downloaded linux amd64 zip file incorrect!"
+  echo "wanted=${SHA256SUM_WANTED} got=${SHA256SUM}"
+  ls -al
   exit 1;
 fi
+echo
 
-# build the package
+echo 'building linux amd64 package'
 fpm --input-type zip --output-type deb --name terraform --version "${LATEST_VERSION}" --architecture amd64 latest_linux_amd64.zip
+echo
+
+ls -al
