@@ -51,6 +51,28 @@ echo
 
 echo 'building linux amd64 package'
 fpm --input-type zip --output-type deb --name terraform --version "${LATEST_VERSION}" --architecture amd64 latest_linux_amd64.zip
+if [ $? -ne 0 ]; then
+  echo "failed to build the linux amd64 package!"
+  ls -l
+  exit 1;
+fi
 echo
 
-ls -al
+# push using this script, instead of using .travis.yml, using travis
+# environment variables for the packagecloud details - as per
+# https://packagecloud.io/docs
+#
+# set the following travis environment variables:
+# - PACKAGECLOUD_REPO
+# - PACKAGECLOUD_TOKEN
+# - PACKAGECLOUD_USER
+echo 'pushing package to packagecloud'
+package_cloud push "${PACKAGECLOUD_USER}/${PACKAGECLOUD_REPO}" "terraform_${LATEST_VERSION}_amd64.deb"
+if [ $? -ne 0 ]; then
+  echo "failed to push the linux amd64 package to packagecloud!"
+  exit 1;
+fi
+echo
+
+echo 'Script finished successfully!'
+exit 0
