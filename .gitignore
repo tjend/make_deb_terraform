@@ -1,0 +1,5 @@
+/.gnupg
+/*.deb
+/*.zip
+/SHA256SUMS
+/SHA256SUMS.sig
