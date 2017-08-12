@@ -1,8 +1,12 @@
 language: bash
 
+addons:
+  apt:
+    packages:
+      - reprepro
+
 before_install:
   - gem install fpm
-  - gem install package_cloud
 
 script:
   - ./make_deb_terraform.sh

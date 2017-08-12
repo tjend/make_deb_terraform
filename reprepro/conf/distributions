@@ -1,0 +1,4 @@
+Codename: stable
+Architectures: amd64
+Components: main
+SignWith: 93839C74

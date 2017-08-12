@@ -1,5 +1,7 @@
+/.id_rsa
 /.gnupg
 /*.deb
 /*.zip
 /SHA256SUMS
 /SHA256SUMS.sig
+/repo_terraform
