@@ -8,13 +8,29 @@ GNUPGHOME=./.gnupg
 # set restrictive umask so gpg and ssh keys get correct permissions
 umask 0077
 
-# get latest version number
+echo 'getting latest version number'
 RELEASES_PAGE="https://releases.hashicorp.com/terraform/"
 LATEST_VERSION=$(curl --silent "${RELEASES_PAGE}" | grep "\/terraform\/[0-9]\+\.[0-9]\+\.[0-9]\+\/" | head --lines 1 | cut --delimiter="/" --fields="3")
+if [ $? -ne 0 ]; then
+  echo "Failed to get the latest version number!"
+  exit 1;
+fi
+echo
 
-# TODO: get latest package version number
+echo 'getting latest package version number'
+PACKAGE_VERSION=$(curl --silent "https://tjend.github.io/repo_terraform/LATEST")
+if [ $? -ne 0 ]; then
+  echo "Failed to get the latest package version number!"
+  exit 1;
+fi
+echo
 
-# TODO: check if package is up to date
+echo 'checking if package version matches latest version'
+if [ "${LATEST_VERSION}" == "${PACKAGE_VERSION}" ]; then
+  echo "Package version matches latest version - ${LATEST_VERSION}."
+  exit 0;
+fi
+echo
 
 echo 'downloading latest files'
 BASE="https://releases.hashicorp.com/terraform/${LATEST_VERSION}/terraform_${LATEST_VERSION}"
