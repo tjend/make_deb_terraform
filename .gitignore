@@ -1,5 +1,5 @@
 /.id_rsa
-/.gnupg
+/gnupg
 /*.deb
 /*.zip
 /SHA256SUMS

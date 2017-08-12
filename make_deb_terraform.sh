@@ -2,11 +2,14 @@
 # Check the latest terraform version vs the latest packaged version.
 # If not the same, build a new package, and push to apt repo.
 
-# set the gpg home dir to be ./.gnupg
-GNUPGHOME=./.gnupg
-
 # set restrictive umask so gpg and ssh keys get correct permissions
 umask 0077
+
+# set the gpg home dir to be ./.gnupg
+# explicitly use --homedir with gpg
+# explicitly use --gnupghome with reprepro
+GNUPGHOME=./gnupg
+mkdir -p "${GNUPGHOME}"
 
 echo 'getting latest version number'
 RELEASES_PAGE="https://releases.hashicorp.com/terraform/"
@@ -45,7 +48,7 @@ echo
 echo 'importing hashicorp gpg key'
 KEYID="51852D87348FFC4C"
 URL_KEY="https://keybase.io/hashicorp/pgp_keys.asc"
-curl --silent "${URL_KEY}" | gpg --import
+curl --silent "${URL_KEY}" | gpg --homedir "${GNUPGHOME}" --import
 if [ $? -ne 0 ]; then
   echo "Failed to import hashicorp gpg key!"
   exit 1;
@@ -53,7 +56,7 @@ fi
 echo
 
 echo 'verifying downloaded signature'
-gpg --trusted-key "${KEYID}" --verify SHA256SUMS.sig SHA256SUMS
+gpg --homedir "${GNUPGHOME}" --trusted-key "${KEYID}" --verify SHA256SUMS.sig SHA256SUMS
 if [ $? -ne 0 ]; then
   echo "Failed to verify downloaded signature!"
   exit 1;
@@ -81,7 +84,10 @@ fi
 echo
 
 # import apt repo signing key, replacing '_' with newline
-echo $REPO_TERRAFORM_GPG_KEY | tr '_' '\n' | gpg --allow-secret-key-import --import
+echo $REPO_TERRAFORM_GPG_KEY | tr '_' '\n' | gpg --homedir "${GNUPGHOME}" --allow-secret-key-import --import
+
+# configure gpg to use SHA512
+echo "digest-algo SHA512" >> "${GNUPGHOME}/gpg.conf"
 
 # write apt repo git ssh key, replacing '_' with newline
 echo $REPO_TERRAFORM_SSH_KEY | tr '_' '\n' > .id_rsa
@@ -97,19 +103,17 @@ if [ $? -ne 0 ]; then
 fi
 echo
 
-echo "adding repo files to repo if the don't already exist"
+echo "adding repo files to repo, even if they already exist"
 for FILE in $(ls repo_files/); do
-  if [ ! -e "repo_terraform/${FILE}" ]; then
-    cp "repo_files/${FILE}" repo_terraform/
-  fi
+  cp --verbose "repo_files/${FILE}" repo_terraform/
 done
 echo
 
 echo 'adding new deb package using reprepro'
-reprepro --basedir ./repo_terraform --confdir ./reprepro/conf includedeb stable "terraform_${LATEST_VERSION}_amd64.deb"
+reprepro --basedir ./repo_terraform --confdir ./reprepro/conf --gnupghome "${GNUPGHOME}" includedeb stable "terraform_${LATEST_VERSION}_amd64.deb"
 if [ $? -ne 0 ]; then
   echo "Failed to add the new deb package using reprepro!"
-  gpg --list-secret-keys
+  gpg --homedir "${GNUPGHOME}" --list-secret-keys
   exit 1;
 fi
 echo
