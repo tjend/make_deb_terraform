@@ -1,1 +1,3 @@
 Build packages for the latest terraform release.
+
+Note: Hashicorp has finally created their own apt repo, see https://www.hashicorp.com/blog/announcing-the-hashicorp-linux-repository, so my repo has been taken offline.
